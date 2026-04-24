@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NYP USA — Tu Personal Shopper en Miami</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --rose:    #F0C4CB;
+  --deep:    #C87D87;
+  --warm:    #FBEAD6;
+  --sand:    #E5BCA9;
+  --ink:     #6B2D3E;
+  --muted:   #7A5055;
+  --cream:   #FDF8F5;
+  --white:   #FFFFFF;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Outfit', sans-serif;
+  background: var(--cream);
+  color: var(--ink);
+  overflow-x: hidden;
+  cursor: default;
+}
+
+/* ── CUSTOM CURSOR ── */
+.cursor {
+  width: 10px; height: 10px;
+  background: var(--deep);
+  border-radius: 50%;
+  position: fixed;
+  top: 0; left: 0;
+  pointer-events: none;
+  z-index: 9999;
+  transition: transform 0.15s ease, width 0.2s, height 0.2s, background 0.2s;
+  transform: translate(-50%, -50%);
+}
+.cursor-ring {
+  width: 34px; height: 34px;
+  border: 1.5px solid var(--deep);
+  border-radius: 50%;
+  position: fixed;
+  top: 0; left: 0;
+  pointer-events: none;
+  z-index: 9998;
+  transition: transform 0.08s ease, width 0.2s, height 0.2s, opacity 0.2s;
+  transform: translate(-50%, -50%);
+  opacity: 0.5;
+}
+
+/* ── SCROLL REVEAL ── */
+[data-reveal] {
+  opacity: 0;
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+[data-reveal="up"]    { transform: translateY(50px); }
+[data-reveal="left"]  { transform: translateX(-50px); }
+[data-reveal="right"] { transform: translateX(50px); }
+[data-reveal="scale"] { transform: scale(0.92); }
+[data-reveal].in-view { opacity: 1; transform: none; }
+[data-delay="1"] { transition-delay: 0.1s; }
+[data-delay="2"] { transition-delay: 0.2s; }
+[data-delay="3"] { transition-delay: 0.3s; }
+[data-delay="4"] { transition-delay: 0.4s; }
+[data-delay="5"] { transition-delay: 0.5s; }
+
+/* ── NAV ── */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 500;
+  padding: 0 52px;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: background 0.3s, box-shadow 0.3s;
+}
+nav.scrolled {
+  background: rgba(253,248,245,0.96);
+  box-shadow: 0 1px 0 var(--rose);
+  backdrop-filter: blur(12px);
+}
+nav.scrolled .nav-link {
+  color: var(--muted);
+}
+nav.scrolled .nav-link:hover {
+  color: var(--deep);
+}
+nav.scrolled .logo-main { color: var(--ink); }
+nav.scrolled .logo-sub  { color: var(--deep); }
+.logo {
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1;
+}
+.logo-main {
+  font-family: 'DM Serif Display', serif;
+  font-size: 26px;
+  color: var(--white);
+  letter-spacing: 6px;
+}
+.logo-sub {
+  font-size: 9px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--rose);
+  font-weight: 500;
+}
+.nav-right { display: flex; align-items: center; gap: 36px; }
+.nav-link {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--rose);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.nav-link:hover { color: var(--white); }
+.nav-btn {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--white);
+  background: var(--deep);
+  text-decoration: none;
+  padding: 10px 24px;
+  border-radius: 40px;
+  transition: background 0.2s, transform 0.15s;
+}
+.nav-btn:hover { background: var(--ink); transform: translateY(-1px); }
+
+/* ── HERO ── */
+.hero {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  padding: 120px 48px 80px;
+  position: relative;
+  background: var(--ink);
+  overflow: hidden;
+}
+
+/* mesh gradient background */
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 70% 60% at 20% 30%, rgba(200,125,135,0.28) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 70% at 80% 70%, rgba(240,196,203,0.2) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 50% at 50% 90%, rgba(229,188,169,0.15) 0%, transparent 60%);
+}
+
+/* grain overlay */
+.hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.hero-content { position: relative; z-index: 1; max-width: 800px; }
+
+.hero-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(240,196,203,0.15);
+  border: 1px solid rgba(240,196,203,0.3);
+  color: var(--rose);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  padding: 8px 20px;
+  border-radius: 40px;
+  margin-bottom: 36px;
+  animation: fadeIn 1s ease both 0.3s;
+}
+.hero-pill::before { content: '✦'; color: var(--deep); }
+.hero-pill::after  { content: '✦'; color: var(--deep); }
+
+.hero h1 {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(48px, 8vw, 88px);
+  color: var(--white);
+  line-height: 1.05;
+  margin-bottom: 28px;
+  animation: fadeIn 1s ease both 0.5s;
+}
+.hero h1 em {
+  font-style: italic;
+  color: var(--rose);
+  display: block;
+}
+
+.hero-desc {
+  font-size: 16px;
+  color: rgba(229,188,169,0.85);
+  line-height: 1.9;
+  font-weight: 300;
+  max-width: 500px;
+  margin: 0 auto 44px;
+  animation: fadeIn 1s ease both 0.7s;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+  animation: fadeIn 1s ease both 0.9s;
+}
+
+.btn-rose {
+  background: var(--rose);
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 16px 36px;
+  border-radius: 50px;
+  text-decoration: none;
+  font-family: 'Outfit', sans-serif;
+  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+}
+.btn-rose:hover {
+  background: var(--white);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 32px rgba(200,125,135,0.4);
+}
+.btn-ghost-light {
+  background: transparent;
+  color: var(--rose);
+  border: 1.5px solid rgba(240,196,203,0.5);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 16px 36px;
+  border-radius: 50px;
+  text-decoration: none;
+  font-family: 'Outfit', sans-serif;
+  transition: border-color 0.2s, background 0.2s, transform 0.15s;
+}
+.btn-ghost-light:hover {
+  border-color: var(--rose);
+  background: rgba(240,196,203,0.1);
+  transform: translateY(-3px);
+}
+
+/* ── MARQUEE ── */
+.marquee-wrap {
+  background: var(--deep);
+  overflow: hidden;
+  padding: 15px 0;
+  position: relative;
+}
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 20s linear infinite;
+}
+.marquee-track span {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--white);
+  padding: 0 28px;
+  white-space: nowrap;
+}
+.marquee-track span.dot {
+  color: var(--rose);
+  padding: 0;
+  letter-spacing: 0;
+}
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+/* ── BADGES ── */
+.badges-bar {
+  background: var(--warm);
+  border-bottom: 1px solid var(--sand);
+  padding: 18px 48px;
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--white);
+  border: 1px solid var(--sand);
+  border-radius: 30px;
+  padding: 8px 20px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted);
+  transition: border-color 0.2s, transform 0.2s;
+}
+.badge:hover { border-color: var(--deep); transform: translateY(-2px); }
+.badge .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--deep); flex-shrink: 0; }
+
+/* ── SERVICES ── */
+.services {
+  padding: 110px 48px;
+  background: var(--cream);
+}
+.section-tag {
+  display: block;
+  text-align: center;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--deep);
+  margin-bottom: 14px;
+}
+.section-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(32px, 5vw, 52px);
+  color: var(--ink);
+  text-align: center;
+  line-height: 1.15;
+  margin-bottom: 14px;
+}
+.section-title em { font-style: italic; color: var(--deep); }
+.section-desc {
+  font-size: 15px;
+  color: var(--muted);
+  text-align: center;
+  max-width: 480px;
+  margin: 0 auto 64px;
+  font-weight: 300;
+  line-height: 1.8;
+}
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 22px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+.svc-card {
+  background: var(--white);
+  border: 1.5px solid var(--rose);
+  border-radius: 28px;
+  padding: 40px 28px 32px;
+  text-align: center;
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.svc-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(240,196,203,0.08) 0%, transparent 60%);
+  pointer-events: none;
+}
+.svc-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 20px 50px rgba(200,125,135,0.18);
+}
+.svc-num {
+  font-family: 'DM Serif Display', serif;
+  font-size: 11px;
+  color: var(--rose);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  font-style: italic;
+}
+.svc-icon-wrap {
+  width: 68px; height: 68px;
+  border-radius: 50%;
+  background: var(--warm);
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 22px;
+  transition: background 0.25s;
+}
+.svc-card:hover .svc-icon-wrap { background: var(--rose); }
+.svc-card h3 {
+  font-family: 'DM Serif Display', serif;
+  font-size: 20px;
+  color: var(--ink);
+  margin-bottom: 12px;
+}
+.svc-card p {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.75;
+  font-weight: 300;
+  margin-bottom: 24px;
+  flex: 1;
+}
+.svc-cta {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--deep);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: gap 0.2s;
+}
+.svc-card:hover .svc-cta { gap: 10px; }
+
+/* ── HOW ── */
+.how {
+  padding: 110px 48px;
+  background: var(--ink);
+  position: relative;
+  overflow: hidden;
+}
+.how-bg-text {
+  position: absolute;
+  font-family: 'DM Serif Display', serif;
+  font-size: 200px;
+  color: rgba(240,196,203,0.04);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+}
+.how .section-tag { color: var(--rose); }
+.how .section-title { color: var(--white); }
+.how .section-title em { color: var(--rose); }
+.how .section-desc { color: rgba(229,188,169,0.7); }
+.steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 2px;
+  max-width: 960px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+.step {
+  padding: 40px 28px;
+  border: 1px solid rgba(240,196,203,0.12);
+  text-align: center;
+  position: relative;
+  transition: background 0.3s;
+}
+.step:hover { background: rgba(240,196,203,0.06); }
+.step-num {
+  font-family: 'DM Serif Display', serif;
+  font-size: 52px;
+  font-style: italic;
+  color: rgba(200,125,135,0.25);
+  line-height: 1;
+  margin-bottom: 16px;
+}
+.step h4 {
+  font-family: 'DM Serif Display', serif;
+  font-size: 19px;
+  color: var(--rose);
+  margin-bottom: 10px;
+}
+.step p { font-size: 13px; color: rgba(229,188,169,0.65); line-height: 1.7; font-weight: 300; }
+
+/* ── TESTIMONIALS ── */
+.testimonials {
+  padding: 110px 48px;
+  background: var(--warm);
+}
+.testimonials .section-title em { color: var(--deep); }
+.tgrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 22px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+.tcard {
+  background: var(--white);
+  border-radius: 28px;
+  padding: 36px 30px;
+  position: relative;
+  border: 1.5px solid transparent;
+  transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+}
+.tcard:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 16px 40px rgba(200,125,135,0.14);
+  border-color: var(--rose);
+}
+.tcard-quote {
+  font-family: 'DM Serif Display', serif;
+  font-size: 72px;
+  line-height: 0.7;
+  color: var(--rose);
+  margin-bottom: 20px;
+  display: block;
+}
+.tcard-stars { display: flex; gap: 4px; margin-bottom: 16px; }
+.tcard-stars span { color: var(--deep); font-size: 14px; }
+.tcard p {
+  font-family: 'DM Serif Display', serif;
+  font-size: 16px;
+  font-style: italic;
+  color: var(--ink);
+  line-height: 1.75;
+  margin-bottom: 22px;
+}
+.tcard-line {
+  width: 32px; height: 2px;
+  background: var(--rose);
+  margin-bottom: 12px;
+}
+.tcard-name {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--deep);
+}
+
+/* ── CONTACT ── */
+.contact {
+  padding: 120px 48px;
+  background: var(--deep);
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+}
+.contact::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 60% 80% at 10% 50%, rgba(240,196,203,0.15) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 60% at 90% 30%, rgba(44,26,29,0.4) 0%, transparent 60%);
+}
+.contact-inner { position: relative; z-index: 1; max-width: 640px; margin: 0 auto; }
+.contact h2 {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(34px, 6vw, 60px);
+  color: var(--white);
+  line-height: 1.1;
+  margin-bottom: 18px;
+}
+.contact h2 em { font-style: italic; color: var(--rose); }
+.contact-sub {
+  font-size: 15px;
+  color: rgba(240,196,203,0.75);
+  margin-bottom: 52px;
+  font-weight: 300;
+  line-height: 1.7;
+}
+.contact-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-bottom: 44px;
+}
+.ccard {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(240,196,203,0.25);
+  border-radius: 20px;
+  padding: 24px 16px;
+  text-decoration: none;
+  color: var(--white);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  transition: background 0.2s, transform 0.2s, border-color 0.2s;
+  backdrop-filter: blur(8px);
+}
+.ccard:hover {
+  background: rgba(240,196,203,0.15);
+  transform: translateY(-4px);
+  border-color: rgba(240,196,203,0.5);
+}
+.ccard svg { color: var(--rose); }
+.ccard-label {
+  font-size: 9px;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: rgba(240,196,203,0.6);
+  font-weight: 600;
+}
+.ccard-val { font-size: 13px; font-weight: 500; }
+
+/* ── FOOTER ── */
+footer {
+  background: var(--ink);
+  padding: 28px 52px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  border-top: 1px solid rgba(240,196,203,0.1);
+}
+.footer-brand {
+  font-family: 'DM Serif Display', serif;
+  font-size: 20px;
+  letter-spacing: 5px;
+  color: var(--rose);
+}
+.footer-copy {
+  font-size: 11px;
+  color: rgba(229,188,169,0.45);
+  font-weight: 300;
+  letter-spacing: 0.5px;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 700px) {
+  nav { padding: 0 20px; }
+  .nav-right { gap: 16px; }
+  .nav-link { font-size: 10px; letter-spacing: 1px; }
+  .hero { padding: 100px 24px 70px; }
+  .services, .how, .testimonials, .contact { padding: 72px 24px; }
+  .badges-bar { padding: 16px 20px; }
+  footer { padding: 22px 24px; flex-direction: column; text-align: center; }
+  .contact-cards { grid-template-columns: 1fr; }
+  .steps { gap: 0; }
+}
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- NAV -->
+<nav id="nav">
+  <a href="#" class="logo">
+    <span class="logo-main">NYP</span>
+    <span class="logo-sub">Tu Personal Shopper</span>
+  </a>
+  <div class="nav-right">
+    <a href="#servicios" class="nav-link">Servicios</a>
+    <a href="#como" class="nav-link">Proceso</a>
+    <a href="#contacto" class="nav-link">Contacto</a>
+    <a href="https://wa.me/17869681849?text=Hola!%20Quiero%20hacer%20un%20encargo" target="_blank" class="nav-btn">Escribir</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-pill">Tu personal shopper en Miami</div>
+    <h1>Compra lo que amas,<br><em>sin salir de casa</em></h1>
+    <p class="hero-desc">Tu espacio favorito para pedir makeup, skincare y moda. Compras por encargo, en vivo por llamada o WhatsApp — para todos, sin importar dónde estés.</p>
+    <div class="hero-actions">
+      <a class="btn-rose" href="https://wa.me/17869681849?text=Hola!%20Quiero%20hacer%20un%20encargo%20con%20NYP%20USA" target="_blank">Hacer un encargo</a>
+      <a class="btn-ghost-light" href="https://instagram.com/nyp.miami" target="_blank">Ver en vivo</a>
+    </div>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-wrap">
+  <div class="marquee-track">
+    <span>Compras personalizadas</span><span class="dot">✦</span>
+    <span>Shopping online</span><span class="dot">✦</span>
+    <span>Ventas en vivo</span><span class="dot">✦</span>
+    <span>Pedidos por encargo</span><span class="dot">✦</span>
+    <span>Miami USA</span><span class="dot">✦</span>
+    <span>Envíos internacionales</span><span class="dot">✦</span>
+    <span>Compras personalizadas</span><span class="dot">✦</span>
+    <span>Shopping online</span><span class="dot">✦</span>
+    <span>Ventas en vivo</span><span class="dot">✦</span>
+    <span>Pedidos por encargo</span><span class="dot">✦</span>
+    <span>Miami USA</span><span class="dot">✦</span>
+    <span>Envíos internacionales</span><span class="dot">✦</span>
+  </div>
+</div>
+
+<!-- BADGES -->
+<div class="badges-bar">
+  <div class="badge"><span class="dot"></span> Atención personalizada</div>
+  <div class="badge"><span class="dot"></span> Respuesta rápida</div>
+  <div class="badge"><span class="dot"></span> Envíos internacionales</div>
+  <div class="badge"><span class="dot"></span> Marcas americanas</div>
+</div>
+
+<!-- SERVICIOS -->
+<section class="services" id="servicios">
+  <span class="section-tag" data-reveal="up">Lo que hacemos</span>
+  <h2 class="section-title" data-reveal="up" data-delay="1">Nuestros <em>servicios</em></h2>
+  <p class="section-desc" data-reveal="up" data-delay="2">Todo lo que necesitas para comprar en USA sin complicaciones</p>
+  <div class="services-grid">
+    <a class="svc-card" href="https://wa.me/17869681849?text=Hola!%20Quiero%20una%20compra%20personalizada" target="_blank" data-reveal="up" data-delay="2">
+      <div class="svc-num">01</div>
+      <div class="svc-icon-wrap">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#C87D87" stroke-width="1.5"><path d="M6 2l1.5 5h9L18 2M4 7h16l-2 13H6z"/></svg>
+      </div>
+      <h3>Compras personalizadas</h3>
+      <p>Dinos qué quieres y lo buscamos por ti en las mejores tiendas de Miami</p>
+      <span class="svc-cta">Pedir ahora →</span>
+    </a>
+    <a class="svc-card" href="https://wa.me/17869681849?text=Hola!%20Quiero%20hacer%20shopping%20online" target="_blank" data-reveal="up" data-delay="3">
+      <div class="svc-num">02</div>
+      <div class="svc-icon-wrap">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#C87D87" stroke-width="1.5"><rect x="2" y="5" width="20" height="14" rx="3"/><path d="M2 9h20"/></svg>
+      </div>
+      <h3>Shopping online</h3>
+      <p>Compramos en tiendas de USA que no envían a tu país directamente</p>
+      <span class="svc-cta">Consultar →</span>
+    </a>
+    <a class="svc-card" href="https://instagram.com/nyp.miami" target="_blank" data-reveal="up" data-delay="4">
+      <div class="svc-num">03</div>
+      <div class="svc-icon-wrap">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#C87D87" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M10 8l6 4-6 4z" fill="#C87D87" stroke="none"/></svg>
+      </div>
+      <h3>Ventas en vivo</h3>
+      <p>Únete a nuestras transmisiones y compra en tiempo real por llamada</p>
+      <span class="svc-cta">Ver Instagram →</span>
+    </a>
+    <a class="svc-card" href="https://wa.me/17869681849?text=Hola!%20Quiero%20hacer%20un%20pedido%20por%20encargo" target="_blank" data-reveal="up" data-delay="5">
+      <div class="svc-num">04</div>
+      <div class="svc-icon-wrap">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#C87D87" stroke-width="1.5"><path d="M4 6h16M4 12h10M4 18h7"/><path d="M17 14l2 2-4 5"/></svg>
+      </div>
+      <h3>Pedidos por encargo</h3>
+      <p>Mándanos foto o descripción y te conseguimos el mejor precio</p>
+      <span class="svc-cta">Encargar →</span>
+    </a>
+  </div>
+</section>
+
+<!-- CÓMO FUNCIONA -->
+<section class="how" id="como">
+  <div class="how-bg-text">NYP</div>
+  <span class="section-tag" data-reveal="up">El proceso</span>
+  <h2 class="section-title" data-reveal="up" data-delay="1">¿Cómo <em>funciona?</em></h2>
+  <p class="section-desc" data-reveal="up" data-delay="2">Comprar desde USA nunca fue tan fácil</p>
+  <div class="steps">
+    <div class="step" data-reveal="up" data-delay="2">
+      <div class="step-num">01</div>
+      <h4>Escríbenos</h4>
+      <p>Por WhatsApp o Instagram cuéntanos qué buscas</p>
+    </div>
+    <div class="step" data-reveal="up" data-delay="3">
+      <div class="step-num">02</div>
+      <h4>Cotizamos</h4>
+      <p>Te damos el precio del producto más el envío, sin sorpresas</p>
+    </div>
+    <div class="step" data-reveal="up" data-delay="4">
+      <div class="step-num">03</div>
+      <h4>Confirmás</h4>
+      <p>Aprobás el pedido y realizás el pago de forma segura</p>
+    </div>
+    <div class="step" data-reveal="up" data-delay="5">
+      <div class="step-num">04</div>
+      <h4>¡Lo recibís!</h4>
+      <p>Enviamos a tu puerta con número de seguimiento incluido</p>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIOS -->
+<section class="testimonials">
+  <span class="section-tag" data-reveal="up">Clientes felices</span>
+  <h2 class="section-title" data-reveal="up" data-delay="1">Lo que dicen <em>de nosotros</em></h2>
+  <p class="section-desc" data-reveal="up" data-delay="2">Cientos de pedidos exitosos desde Miami</p>
+  <div class="tgrid">
+    <div class="tcard" data-reveal="up" data-delay="2">
+      <span class="tcard-quote">"</span>
+      <div class="tcard-stars"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+      <p>Me consiguieron unas zapatillas que aquí no había en ninguna tienda. Todo llegó perfecto y súper rápido. ¡100% recomendadas!</p>
+      <div class="tcard-line"></div>
+      <div class="tcard-name">— Valentina R., Colombia</div>
+    </div>
+    <div class="tcard" data-reveal="up" data-delay="3">
+      <span class="tcard-quote">"</span>
+      <div class="tcard-stars"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+      <p>La venta en vivo es increíble, ves la ropa en tiempo real y haces tu pedido al instante. Muy confiables y atentas.</p>
+      <div class="tcard-line"></div>
+      <div class="tcard-name">— Andrea M., Venezuela</div>
+    </div>
+    <div class="tcard" data-reveal="up" data-delay="4">
+      <span class="tcard-quote">"</span>
+      <div class="tcard-stars"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+      <p>Pedí ropa de marca americana y llegó todo original, bien empacado y al precio justo. Ya hice mi tercer pedido.</p>
+      <div class="tcard-line"></div>
+      <div class="tcard-name">— Camila T., México</div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACTO -->
+<section class="contact" id="contacto">
+  <div class="contact-inner">
+    <h2 data-reveal="up">¿Lista para tu<br><em>próximo look?</em></h2>
+    <p class="contact-sub" data-reveal="up" data-delay="1">Contáctanos ahora y te atendemos al instante</p>
+    <div class="contact-cards" data-reveal="up" data-delay="2">
+      <a class="ccard" href="https://instagram.com/nyp.miami" target="_blank">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1.2" fill="currentColor" stroke="none"/></svg>
+        <span class="ccard-label">Instagram</span>
+        <span class="ccard-val">@nyp.miami</span>
+      </a>
+      <a class="ccard" href="mailto:nypmiami@gmail.com">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="M2 7l10 7 10-7"/></svg>
+        <span class="ccard-label">Email</span>
+        <span class="ccard-val">nypmiami@gmail.com</span>
+      </a>
+      <a class="ccard" href="https://wa.me/17869681849" target="_blank">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+        <span class="ccard-label">WhatsApp</span>
+        <span class="ccard-val">+1 786 968 1849</span>
+      </a>
+    </div>
+    <div data-reveal="up" data-delay="3">
+      <a class="btn-rose" href="https://wa.me/17869681849?text=Hola!%20Quiero%20hacer%20un%20pedido%20con%20NYP%20USA" target="_blank">Escribir por WhatsApp</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <span class="footer-brand">NYP USA</span>
+  <p class="footer-copy">© 2025 NYP USA · Miami, Florida · Todos los derechos reservados</p>
+</footer>
+
+<script>
+// Scroll reveal
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('in-view');
+      observer.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.12 });
+document.querySelectorAll('[data-reveal]').forEach(el => observer.observe(el));
+
+// Nav scroll
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('scrolled', window.scrollY > 40);
+});
+
+// Custom cursor
+const cursor = document.getElementById('cursor');
+const ring = document.getElementById('cursorRing');
+document.addEventListener('mousemove', e => {
+  cursor.style.left = e.clientX + 'px';
+  cursor.style.top  = e.clientY + 'px';
+  setTimeout(() => {
+    ring.style.left = e.clientX + 'px';
+    ring.style.top  = e.clientY + 'px';
+  }, 60);
+});
+document.querySelectorAll('a, button').forEach(el => {
+  el.addEventListener('mouseenter', () => {
+    cursor.style.transform = 'translate(-50%,-50%) scale(2)';
+    ring.style.opacity = '0';
+  });
+  el.addEventListener('mouseleave', () => {
+    cursor.style.transform = 'translate(-50%,-50%) scale(1)';
+    ring.style.opacity = '0.5';
+  });
+});
+</script>
+</body>
+</html>
